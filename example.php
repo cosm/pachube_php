@@ -29,7 +29,7 @@ require_once( 'pachube_functions.php' );
 $api_key = "ENTER_API_KEY";
 $feed = 1666;
 $data = "3.4,66,7";
-$data_type = "csv"; // can be 'csv' or'xml' 
+$data_type = "csv"; // can currently be 'csv' or'xml' 
 
 // creates a new Pachube object with the given API key
 
