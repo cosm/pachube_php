@@ -20,8 +20,13 @@
 
 # *****************************************************************
 
-// this is a basic example for updating a Pachube manual feed 
-// requires PHP 5
+// Used for manipulating the API of www.pachube.com, a service 
+// that enables you to connect, tag and share real time sensor data from 
+// objects, devices, buildings and environments around the world. 
+//
+// This is a basic example for updating a Pachube manual feed.
+// 
+// Requires PHP 5
 
 
 require_once( 'pachube_functions.php' );

@@ -21,6 +21,15 @@
 # *****************************************************************
 
 
+// This class is used for manipulating the API of www.pachube.com, a service 
+// that enables you to connect, tag and share real time sensor data from 
+// objects, devices, buildings and environments around the world. 
+//
+// Currently only supports updating a manual feed. More API functionality to 
+// be added over time.
+// Requires PHP 5
+
+
 class Pachube
 {
 		
