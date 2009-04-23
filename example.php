@@ -32,46 +32,120 @@
 require_once( 'pachube_functions.php' );
 
 $api_key = "ENTER_API_KEY";
-$feed = 1666;
-$data = "3.4,66,7";
-$data_type = "csv"; // can currently be 'csv' or'xml' 
-
-// creates a new Pachube object with the given API key
-
 $pachube = new Pachube($api_key);
+
+
+
+# *****************************************************************
+#
+# retrieve feed data
+#
+# *****************************************************************
+
+echo "<hr>";
+echo "retrieving feed data as CSV: ";
+$url = "http://www.pachube.com/api/504.csv";
+$data = $pachube->retrieveData ( $url );
+echo $data;
+
+
+echo "<hr>";
+echo "retrieving feed data as XML: ";
+$url = "http://www.pachube.com/api/256.xml";
+$data = $pachube->retrieveData ( $url );
+echo "<br><textarea rows=\"5\" cols=\"80\">$data</textarea>";
+
+
+echo "<hr>";
+echo "retrieving feed data as CSV, using feed ID only: ";
+$feed = 480;
+$data = $pachube->retrieveData ( $feed, "csv" );
+echo $data;
+
+
+# *****************************************************************
+#
+# update manual feed: CSV
+#
+# *****************************************************************
+
+echo "<hr>";
+echo "updating a manual feed with CSV: ";
+$url = "http://www.pachube.com/api/1666.csv";
+$data = "1,3,5";
 
 // this next line makes the actual update attempt and returns a status code
 
-$update_status = $pachube->updatePachube ( $feed, $data, $data_type );	
+$update_status = $pachube->updatePachube ( $url, $data );	
+$pachube->debugStatusCode($update_status);
 
-$error = "";
+# *****************************************************************
+#
+# update manual feed: EEML
+#
+# *****************************************************************
 
-// status code returns 200 if successful
-	
-switch ($update_status){
-	
-	case 200:
-		echo "Pachube feed ".$feed." successfully update with the following data: ".$data;	
-		break;
+echo "<hr>";
+echo "updating a manual feed with EEML: ";
+$url = "http://www.pachube.com/api/1666.xml";
+$data = <<<END
+<eeml xmlns="http://www.eeml.org/xsd/005"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.eeml.org/xsd/005 http://www.eeml.org/xsd/005/005.xsd">
+    <environment>
+    <title>new post</title>
+        <data id="0">
+            <value>48.7</value>
+        </data>
+    </environment>
+</eeml>
+END;
+$update_status = $pachube->updatePachube ( $url, $data );	
+$pachube->debugStatusCode($update_status);
 
-	case 401:
-		$error.= "Pachube API key was incorrect";
-		break;
 
-	case 404:
-		$error.= "Feed ID does not exist";
-		break;
+# *****************************************************************
+#
+# retrieve history data as an array
+#
+# *****************************************************************
 
-	case 777:
-		$error.= "Error in feed ID, data type or data";
-		break;
+echo "<hr>";
+echo "retrieving history data as an array: ";
+$url = "http://www.pachube.com/feeds/504/datastreams/1/history.csv";
+$history = $pachube->retrieveHistory ( $url );
+print_r ($history);
 
-	case 999:
-		$error.= "curl library not installed";
-		break;
 
-}
+# *****************************************************************
+#
+# create a new Pachube feed
+#
+# *****************************************************************
 
-echo $error;
+
+echo "<hr>";
+echo "create a new manual Pachube feed: ";
+$title = "new feed from php library final";
+
+$new_feed_id = $pachube->createFeed ( $title );	
+
+// bad hack, but for the moment unsuccessful attempts to create simply
+// return their HTTP status code, as a negative number
+
+echo $new_feed_id;
+
+# *****************************************************************
+#
+# delete a Pachube feed
+#
+# *****************************************************************
+
+
+echo "<hr>";
+echo "delete a Pachube feed: ";
+
+$delete_status = $pachube->deletePachube ( $new_feed_id );	
+$pachube->debugStatusCode($delete_status);
 
 ?>
