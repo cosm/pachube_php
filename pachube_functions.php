@@ -228,12 +228,12 @@ class Pachube
 						
 				curl_exec($ch);
 	
-				$Headers = curl_getinfo($ch);
+				$headers = curl_getinfo($ch);
 				fclose($putData);
 				curl_close($ch);
 						
 						
-				$ret = $Headers['http_code'];
+				$ret = $headers['http_code'];
 								
 			} 
 			else
@@ -260,7 +260,7 @@ class Pachube
 						
 				$return = curl_exec($ch);
 	
-				$Headers = curl_getinfo($ch);
+				$headers = curl_getinfo($ch);
 				curl_close($ch);
 							
 				$ret = $return;
@@ -295,11 +295,11 @@ class Pachube
 						
 				$return = curl_exec($ch);
 	
-				$Headers = curl_getinfo($ch);
+				$headers = curl_getinfo($ch);
 
 				curl_close($ch);
 				
-				$status = $Headers['http_code'];				
+				$status = $headers['http_code'];				
 				
 				if ($status != 201) {
 					$ret = -$status;
@@ -335,11 +335,11 @@ class Pachube
 						
 				curl_exec($ch);
 	
-				$Headers = curl_getinfo($ch);
+				$headers = curl_getinfo($ch);
 
 				curl_close($ch);
 												
-				$ret = $Headers['http_code'];
+				$ret = $headers['http_code'];
 								
 			} 
 			else
