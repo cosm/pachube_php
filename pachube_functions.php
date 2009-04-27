@@ -76,7 +76,11 @@ class Pachube
 			{
 			
 				if (!empty($type)) {
-					$url = "http://www.pachube.com/api/$url.$type";
+					if ((strcmp(strtolower($type), "xml") == 0) || (strcmp(strtolower($type), "json") == 0) || (strcmp(strtolower($type), "csv") == 0)){
+						$url = "http://www.pachube.com/api/$url.$type";
+					} else {
+						$url = "";
+					}
 				}
 				$request = $this->getRequestToPachube($url);
 				return $request;
@@ -200,6 +204,77 @@ class Pachube
 		}		
 		echo $msg;		
 	}
+
+
+
+	public function showGraph ( $feed_id='', $datastream_id, $width='300', $height='200', $colour='FF0066', $label=true, $grid=true, $title='', $legend='', $stroke='4' ){
+
+		if(!empty($feed_id)){
+		
+			if(is_numeric($feed_id) && is_numeric($datastream_id)){
+							
+				$legend_param = empty($legend)? "" : "&l=$legend";
+				$grid_param = $grid? "&g=$grid" : "";
+				$label_param = $label? "&b=$label" : "";
+				$title_param = (strcmp($title,"")==0)? "" : "&t=$title";
+							
+				echo "<img src=\"http://www.pachube.com/feeds/$feed_id/datastreams/$datastream_id/history.png?w=$width&h=$height&c=$colour$label_param$grid_param$title_param$legend_param&s=$stroke\" width=\"$width\" height=\"$height\" border=\"1\" alt=\"powered by Pachube.com\">";
+			
+			}		
+		}
+		
+	}
+
+
+
+	public function getLatLon ( $search='') 
+	{
+		if (!empty($search))
+		{
+			if(function_exists(curl_init))
+			{	
+			
+				$search = urlencode($search);
+				$url = "http://www.pachube.com/api/search.json?order=created_at&q=$search";
+				$pachube_headers  = array("X-PachubeApiKey: $this->Api");
+
+				$ch = curl_init();	
+				curl_setopt($ch, CURLOPT_URL, $url);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, $pachube_headers);
+						
+				$data = curl_exec($ch);
+	
+				$headers = curl_getinfo($ch);
+				curl_close($ch);
+				
+				$json_data = json_decode($data,true);
+				
+				//var_dump ($json_data);
+				
+				$reported_locations = Array();
+				
+				foreach ( $json_data["results"] as $result ) 
+				{				
+					//print_r ($result);					
+					$location = $result["location"];
+					
+					$this_location = Array();
+					
+					$this_location["lat"] = $location["lat"];
+					$this_location["lon"] = $location["lon"];
+					
+					array_push($reported_locations, $this_location);
+					
+				}
+				
+				return $reported_locations;
+			} 							
+		}
+	}
+
+
+
 
 
 
@@ -366,7 +441,49 @@ class Pachube
 	
 	}
 	
+	public function environment($feed_id)
+	
+	{	
+		$data = json_decode($this->retrieveData ( $feed_id, "json" ), true);		
+		//print_r ($data);
+		$return_data = (strcmp($data,"Unable to find specified resource.")==0) ? "" : $data;
+		return $return_data;
+	}
+	
+	public function showEnvironmentGraph($environment, $datastream_id, $width='300', $height='200', $colour='FF0066', $label=true, $grid=true, $title='', $legend='', $stroke='4' )
+	
+	{	
+		$feed_id = $environment['id'];
+		$this->showGraph($feed_id, $datastream_id, $width, $height, $colour, $label, $grid, $title, $legend, $stroke );
+	}
+
+
+	public function showEnvironmentMap( $environment, $width, $height, $google_map_key)
+	
+	{	
+	
+	if (strcmp($environment, "") !=0){
+	
+	$width.="px";
+	$height.="px";
+	
+	$lat = $environment['location']['lat'];
+	$lon = $environment['location']['lon'];
+	$gmap_text = <<<END
+<div id="pachube_map" style="width: $width; height: $height"></div><script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=$google_map_key" type="text/javascript"></script><script type="text/javascript"> function initialize() { if (GBrowserIsCompatible()) { var map = new GMap2(document.getElementById("pachube_map")); map.setCenter(new GLatLng($lat, $lon), 13); map.setUIToDefault(); var point = new GLatLng($lat, $lon); map.addOverlay(new GMarker(point)); }}initialize();</script>
+END;
+
+	echo $gmap_text;
+	
+	}
+	
+	}
+
+
+
 
 }
+
+
 ?>
 
