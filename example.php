@@ -1,9 +1,42 @@
 ﻿<html>
 <head>
+
+<style>
+
+body
+{
+	padding: 15;
+	margin: 15;
+	font-family: Georgia, Times, serif;
+	background-color: #ffffff;
+	width: 70%;
+}
+
+code {
+	margin: 10px 10px 10px 0px;
+	padding: 10px;
+	border: 1px solid #CCC;
+	background-color: #CCF;
+	font-size:1.2em;
+	display: block
+}
+
+li {
+	margin-bottom: 30px;
+	
+}
+
+</style>
+
 </head>
 <body>
 
+<h1>Pachube PHP Library functions</h1>
+
+<p><i><a href="http://www.pachube.com/">Pachube</a> is a web service that enables you to connect, tag and share real time sensor data from objects, devices, buildings and environments around the world. The key aim is to facilitate interaction between remote environments, both physical and virtual.</i></p>
+<ul>
 <?php	
+
 
 # Pachube basic example
 #
@@ -36,8 +69,62 @@
 
 require_once( 'pachube_functions.php' );
 
-$api_key = "ENTER_YOUR_API_KEY";
+
+# *****************************************************************
+#
+# Create a Pachube object and pass your API key
+#
+# *****************************************************************
+
+
+$api_key = "YOUR_PACHUBE_API_KEY";
+
+echo "<hr>";
+echo "<li><b>Create a Pachube object with your API key: </b>";
+echo '<code>$pachube = new Pachube($api_key); </code>';
+
 $pachube = new Pachube($api_key);
+
+
+# *****************************************************************
+#
+# working with Environments (returns an associative array)
+#
+# *****************************************************************
+
+echo "</li><hr>";
+echo "<li><b>Work with an environment (returned as an associative array): </b><br>";
+
+$feed_id = 504;
+$environment = $pachube->environment( $feed_id );
+
+echo '<code>$environment = $pachube->environment( $feed_id ); </code>';
+
+echo "\$environment['description']: ".$environment['description']."<br>";
+echo "\$environment['status']: ".$environment['status']."<br>";
+echo "\$environment['location']['name']: ".$environment['location']['name']."<br>";
+echo "\$environment['location']['lat']: ".$environment['location']['lat']."<br>";
+echo "\$environment['location']['lon']: ".$environment['location']['lon']."<br>";
+echo "\$environment['location']['exposure']: ".$environment['location']['exposure']."<br>";
+echo "count(\$environment['datastreams']): ".count($environment['datastreams'])."<br>";
+echo "\$environment['datastreams']['2']['value']['current_value']: ".$environment['datastreams']['2']['value']['current_value']."<br>";
+
+
+echo "</li><hr>";
+echo "<li><b>Create graphs and maps using the \$environment array: </b><br>";
+echo '<code>$pachube->showEnvironmentGraph($environment,1); </code>';
+$pachube->showEnvironmentGraph($environment,1);
+echo "<br>";
+echo '<code>$pachube->showEnvironmentGraph($environment,2, 700, 250, "0000FF", false, false, "My configured graph title", "My datastream units", 6); </code>';
+$pachube->showEnvironmentGraph($environment,2, 700, 250, "0000FF", false, false, "My configured graph title", "My datastream units", 6);
+echo "<br>";
+
+// the following requires you to have a Google Map API key for your domain available here: http://code.google.com/apis/maps/
+
+echo '<code>$pachube->showEnvironmentMap($environment, 500, 200, "GOOGLE_MAP_API_KEY"); </code>';
+$pachube->showEnvironmentMap($environment, 500, 200, "ABQIAAAAYGdShHJUqUUqCZujCgqoyxRhf0yX7jCDZEW8LvcORLdH4560mRQtTT3Vx6wORcHDcMrtNf9XNlmO0w");
+
+
 
 
 #/*
@@ -47,68 +134,111 @@ $pachube = new Pachube($api_key);
 #
 # *****************************************************************
 
-echo "<hr>";
-echo "<b>retrieving feed data as CSV: </b>";
+echo "</li><hr>";
+echo "<li><b>Retrieve raw feed data via URL (e.g. http://www.pachube.com/api/504.csv [.json | .xml]): </b>";
 $url = "http://www.pachube.com/api/504.csv";
 $data = $pachube->retrieveData ( $url );
+echo '<code>$data = $pachube->retrieveData ($url); </code>';
 echo $data;
 
-echo "<hr>";
-echo "<b>retrieving feed data as XML: </b>";
-$url = "http://www.pachube.com/api/256.xml";
-$data = $pachube->retrieveData ( $url );
-echo "<br><textarea rows=\"6\" cols=\"80\">$data</textarea>";
-
-echo "<hr>";
-echo "<b>retrieving feed data as CSV, using feed ID only: </b>";
+echo "</li><hr>";
+echo "<li><b>Retrieve raw feed data as CSV, using feed ID only: </b>";
 $feed = 480;
 $data = $pachube->retrieveData ( $feed, "csv" );
+echo '<code>$data = $pachube->retrieveData ( $feed, "csv" ); </code>';
 echo $data;
 
-echo "<hr>";
-echo "<b>retrieving feed data as JSON, using feed ID only: </b>";
+echo "</li><hr>";
+echo "<li><b>Retrieve raw feed data as JSON, using feed ID only: </b>";
 $feed = 480;
 $data = $pachube->retrieveData ( $feed, "json" );
-echo $data;
+echo '<code>$data = $pachube->retrieveData ( $feed, "json" ); </code>';
+echo "<br><textarea rows=\"6\" cols=\"80\">$data</textarea>";
 
-echo "<hr>";
-echo "<b>retrieving feed data as EEML, using feed ID only: </b>";
+echo "</li><hr>";
+echo "<li><b>Retrieve raw feed data as EEML, using feed ID only: </b>";
 $feed = 480;
 $data = $pachube->retrieveData ( $feed, "xml" );
+echo '<code>$data = $pachube->retrieveData ( $feed, "xml" ); </code>';
 echo "<br><textarea rows=\"6\" cols=\"80\">$data</textarea>";
 
 
-#*/
 
 # *****************************************************************
 #
-# working with Environments (returns an associative array)
+# display a graph without loading $environment
 #
 # *****************************************************************
 
-echo "<hr>";
-echo "<b>working with Environments: </b><br>";
 
-$feed_id = 504;
-$environment = $pachube->environment( $feed_id );
+echo "</li><hr>";
+echo "<li><b>Display a Pachube datastream graph without creating \$environment: <br> </b>";
 
-echo "description: ".$environment['description']."<br>";
-echo "status: ".$environment['status']."<br>";
-echo "location name: ".$environment['location']['name']."<br>";
-echo "latitude: ".$environment['location']['lat']."<br>";
-echo "longitude: ".$environment['location']['lon']."<br>";
-echo "exposure: ".$environment['location']['exposure']."<br>";
-echo "number of datastreams: ".count($environment['datastreams'])."<br>";
-echo "value of datastream 2: ".$environment['datastreams']['2']['value']['current_value']."<br>";
+$feed_id=504;
+$datastream_id=1;
 
-$pachube->showEnvironmentGraph($environment,1);
-echo "<br>";
-$pachube->showEnvironmentGraph($environment,2, 700, 250, "0000FF", false, false, "My configured graph title", "My datastream units", 6);
-echo "<br>";
+echo '<code>$pachube->showGraph ( $feed_id, $datastream_id );	 </code>';
 
-// the following requires you to have a Google Map API key for your domain available here: http://code.google.com/apis/maps/
+$pachube->showGraph ( $feed_id, $datastream_id );	
 
-$pachube->showEnvironmentMap($environment, 500, 200, "ABQIAAAAYGdShHJUqUUqCZujCgqoyxRhf0yX7jCDZEW8LvcORLdH4560mRQtTT3Vx6wORcHDcMrtNf9XNlmO0w");
+
+# *****************************************************************
+#
+# display a configured graph
+#
+# *****************************************************************
+
+
+echo "</li><hr>";
+echo "<li><b>Display a <i>configured</i> Pachube datastream graph without creating \$environment: <br> </b>";
+
+$feed_id=504;
+$datastream_id=1;
+
+// parameters are showGraph ( $feed_id, $datastream_id, $width, $height, $colour, $label[true/false], $grid[true/false], $title, $legend, $stroke);	
+
+echo '<code>$pachube->showGraph ( $feed_id, $datastream_id, 500, 300, "00FF00", true, true, "My configured graph title", "My datastream units", 6 );	 </code>';
+
+$pachube->showGraph ( $feed_id, $datastream_id, 500, 300, "00FF00", true, true, "My configured graph title", "My datastream units", 6 );	
+
+
+# *****************************************************************
+#
+# create a new Pachube feed
+#
+# *****************************************************************
+
+
+echo "</li><hr>";
+echo "<li><b>Create a new manual Pachube feed: </b>";
+$title = "new feed from php library final";
+
+echo '<code>$new_feed_id = $pachube->createFeed ( $title ); </code>';
+
+//$new_feed_id = $pachube->createFeed ( $title );	
+
+// bad hack, but for the moment unsuccessful attempts to create simply
+// return their HTTP status code, as a negative number
+
+echo $new_feed_id;
+
+# *****************************************************************
+#
+# delete a Pachube feed
+#
+# *****************************************************************
+
+
+echo "</li><hr>";
+echo "<li><b>Delete a Pachube feed (note this is set to delete the feed we just created): </b>";
+
+echo '<code>$delete_status = $pachube->deletePachube ( $new_feed_id ); </code>';
+
+//$delete_status = $pachube->deletePachube ( $new_feed_id );	
+//$pachube->debugStatusCode($delete_status);
+
+
+
 
 
 #/*
@@ -118,11 +248,13 @@ $pachube->showEnvironmentMap($environment, 500, 200, "ABQIAAAAYGdShHJUqUUqCZujCg
 #
 # *****************************************************************
 
-echo "<hr>";
-echo "<b>updating a manual feed with CSV: </b>";
+echo "</li><hr>";
+echo "<li><b>Update a manual feed with CSV: </b>";
 // note that you must own the feed listed below in order to update it!
 $url = "http://www.pachube.com/api/1666.csv";
 $data = "1,3,5";
+
+echo '<code>$update_status = $pachube->updatePachube ( $url, $data ); </code>';
 
 // this next line makes the actual update attempt and returns a status code
 
@@ -135,10 +267,13 @@ $pachube->debugStatusCode($update_status);
 #
 # *****************************************************************
 
-echo "<hr>";
-echo "<b>updating a manual feed with EEML: </b>";
+echo "</li><hr>";
+echo "<li><b>Update a manual feed with EEML: </b>";
 // note that you must own the feed listed below in order to update it!
 $url = "http://www.pachube.com/api/1666.xml";
+
+echo '<code>$update_status = $pachube->updatePachube ( $url, $data ); </code>';
+
 $data = <<<END
 <eeml xmlns="http://www.eeml.org/xsd/005"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -161,77 +296,15 @@ $pachube->debugStatusCode($update_status);
 #
 # *****************************************************************
 
-echo "<hr>";
-echo "<b>retrieving history data as an array: </b>";
+echo "</li><hr>";
+echo "<li><b>Retrieve history data as an array: </b>";
 $url = "http://www.pachube.com/feeds/504/datastreams/1/history.csv";
+
+echo '<code>$history = $pachube->retrieveHistory ( $url ); </code>';
+
 $history = $pachube->retrieveHistory ( $url );
 print_r ($history);
 
-
-# *****************************************************************
-#
-# create a new Pachube feed
-#
-# *****************************************************************
-
-
-echo "<hr>";
-echo "<b>create a new manual Pachube feed: </b>";
-$title = "new feed from php library final";
-
-//$new_feed_id = $pachube->createFeed ( $title );	
-
-// bad hack, but for the moment unsuccessful attempts to create simply
-// return their HTTP status code, as a negative number
-
-echo $new_feed_id;
-
-# *****************************************************************
-#
-# delete a Pachube feed
-#
-# *****************************************************************
-
-
-echo "<hr>";
-echo "<b>delete a Pachube feed (note this is set to delete the feed we just created): </b>";
-
-//$delete_status = $pachube->deletePachube ( $new_feed_id );	
-//$pachube->debugStatusCode($delete_status);
-
-
-# *****************************************************************
-#
-# display a graph
-#
-# *****************************************************************
-
-
-echo "<hr>";
-echo "<b>Display a Pachube datastream graph: <br> </b>";
-
-$feed_id=504;
-$datastream_id=1;
-
-$pachube->showGraph ( $feed_id, $datastream_id );	
-
-
-# *****************************************************************
-#
-# display a configured graph
-#
-# *****************************************************************
-
-
-echo "<hr>";
-echo "<b>Display a <i>configured</i> Pachube datastream graph: <br> </b>";
-
-$feed_id=504;
-$datastream_id=1;
-
-// parameters are showGraph ( $feed_id, $datastream_id, $width, $height, $colour, $label[true/false], $grid[true/false], $title, $legend, $stroke);	
-
-$pachube->showGraph ( $feed_id, $datastream_id, 500, 300, "00FF00", true, true, "My configured graph title", "My datastream units", 6 );	
 
 
 
@@ -243,15 +316,19 @@ $pachube->showGraph ( $feed_id, $datastream_id, 500, 300, "00FF00", true, true, 
 # *****************************************************************
 
 
-echo "<hr>";
-echo "<b>retrieving lat/lon of feeds that contain a term as an array: </b> <br>";
+echo "</li><hr>";
+echo "<li><b>Retrieve lat/lon of feeds that contain a term as an array: </b> <br>";
+
+echo '<code>$latitude_and_longitudes = $pachube->getLatLon("current cost");	 </code>';
 
 $latitude_and_longitudes = $pachube->getLatLon("current cost");
 
 print_r ( $latitude_and_longitudes );
 
-#*/
-?>
+echo "</li>";
 
+
+?>
+</ul>
 </body>
 </html>

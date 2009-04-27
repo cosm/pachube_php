@@ -35,10 +35,16 @@ class Pachube
 		
 	private $Api;
 	
+	
+	
 	function __construct ($api) 
 	{
 		$this->Api = $api;
 	}
+	
+	
+	
+	
 	 		
 /********************* Methods *****************************/
 
@@ -69,6 +75,7 @@ class Pachube
 	{ 
 		if(empty($this->Api))
 		{
+			//trigger_error(999);
 			return "No API present";
 		} else 
 		{
@@ -446,7 +453,7 @@ class Pachube
 	{	
 		$data = json_decode($this->retrieveData ( $feed_id, "json" ), true);		
 		//print_r ($data);
-		$return_data = (strcmp($data,"Unable to find specified resource.")==0) ? "" : $data;
+		$return_data = (strcmp($data,"Unable to find specified resource.")==0) ? json_decode("{\"location\":{}\"datastreams\":[{}]}") : $data;
 		return $return_data;
 	}
 	
@@ -464,26 +471,23 @@ class Pachube
 	
 	if (strcmp($environment, "") !=0){
 	
-	$width.="px";
-	$height.="px";
-	
-	$lat = $environment['location']['lat'];
-	$lon = $environment['location']['lon'];
-	$gmap_text = <<<END
+		$width.="px";
+		$height.="px";
+		
+		$lat = $environment['location']['lat'];
+		$lon = $environment['location']['lon'];
+		$gmap_text = <<<END
 <div id="pachube_map" style="width: $width; height: $height"></div><script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=$google_map_key" type="text/javascript"></script><script type="text/javascript"> function initialize() { if (GBrowserIsCompatible()) { var map = new GMap2(document.getElementById("pachube_map")); map.setCenter(new GLatLng($lat, $lon), 13); map.setUIToDefault(); var point = new GLatLng($lat, $lon); map.addOverlay(new GMarker(point)); }}initialize();</script>
 END;
 
-	echo $gmap_text;
+		echo $gmap_text;
+	
+		}
 	
 	}
-	
-	}
-
-
 
 
 }
-
 
 ?>
 
