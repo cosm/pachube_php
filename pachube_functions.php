@@ -304,71 +304,98 @@ class Pachube
 		}
 	}
 
-
-
-
-
-
-// Actual request that makes the Pachube update
-
-	private function putRequestToPachube ( $url='', $data='')
+        private function _fputc($url,$data)
 	{
-		$ret = -1;
-		{
-			if(function_exists(curl_init))
-			{	
-    			$putData = tmpfile();
-				fwrite($putData, $data);
-				fseek($putData, 0);
-   
+		$_err = __CLASS__.'::'.__FUNCTION__."($url): ";		
+		// Create a stream
+		$opts['http']['method'] = "PUT";
+		$opts['http']['header'] = "X-PachubeApiKey: ".$this->Api."\r\n";
+		$opts['http']['header'] .= "Content-Length: " . strlen($data) . "\r\n";
+		$opts['http']['content'] = $data;	
+        
+		$context = stream_context_create($opts);
 
-				$ch = curl_init();	
-				curl_setopt($ch, CURLOPT_URL, $url);
-				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-				curl_setopt($ch, CURLOPT_HTTPHEADER, $this->Pachube_headers);
-				curl_setopt($ch, CURLOPT_INFILE, $putData); 
-				curl_setopt($ch, CURLOPT_INFILESIZE, strlen($data)); 
-				curl_setopt($ch, CURLOPT_PUT, true);
-						
-				curl_exec($ch);
-	
-				$headers = curl_getinfo($ch);
-				fclose($putData);
-				curl_close($ch);
-						
-						
-				$ret = $headers['http_code'];
-								
-			} 
-			else
-			{
-				$ret = 999;
-			}				
+		// Open the file using the HTTP headers set above
+		$ret=file_get_contents($url, false, $context);
+                if($ret==false) die('<br>'.$_err.' failed file_get_contents('.$url.')');
+		return $ret;
+	}
+
+	private function putRequestToPachube ( $url, $data)
+	{	
+		if(function_exists('curl_init'))
+		{
+
+			$putData = tmpfile();
+			fwrite($putData, $data);
+			fseek($putData, 0);
+
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, $url);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $this->Pachube_headers);
+			curl_setopt($ch, CURLOPT_INFILE, $putData);
+			curl_setopt($ch, CURLOPT_INFILESIZE, strlen($data));
+			curl_setopt($ch, CURLOPT_PUT, true);
+
+			curl_exec($ch);
+
+			$headers = curl_getinfo($ch);
+			fclose($putData);
+			curl_close($ch);
+
+			return $headers['http_code'];
+
 		}
 		
-	return $ret;
-   } 
-
-// Actual request that retrieved Pachube data
-
-	private function getRequestToPachube ( $url='' )
-	{
-			if(function_exists(curl_init))
-			{	
-				$ch = curl_init();	
-				curl_setopt($ch, CURLOPT_URL, $url);
-				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-				curl_setopt($ch, CURLOPT_HTTPHEADER, $this->Pachube_headers);
-						
-				$return = curl_exec($ch);
-	
-				$headers = curl_getinfo($ch);
-				curl_close($ch);
-							
-				$ret = $return;
-				return $ret;
-			} 							
+		if(function_exists('file_put_contents') && ini_get('allow_url_fopen'))
+		{
+			return $this->_fputc($url,$data);
 		}
+
+		return 999;
+	}
+
+        private function _fgetc($url)
+	{
+		// Create a stream
+		$opts['http']['method'] = "GET";
+		$opts['http']['header'] = "X-PachubeApiKey: ".$this->Api."\r\n";
+		$context = stream_context_create($opts);
+
+		// Open the file using the HTTP headers set above
+		return file_get_contents($url, false, $context);
+	}
+	
+	private function _curl($url)
+	{
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $this->Pachube_headers);
+
+		$ret = curl_exec($ch);
+		$headers = curl_getinfo($ch);
+		curl_close($ch);
+
+		return $ret;
+	}
+	
+	// Actual request that retrieved Pachube data
+	private function getRequestToPachube ( $url )
+	{		
+		if(function_exists('curl_init'))
+		{
+			return $this->_curl($url);
+		}
+		
+		if(function_exists('file_get_contents') && ini_get('allow_url_fopen'))
+		{
+			return $this->_fgetc($url);		
+		}
+		
+		return 999;
+	}
 
 
 

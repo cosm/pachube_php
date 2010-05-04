@@ -102,12 +102,12 @@ echo '<code>$environment = $pachube->environment( $feed_id ); </code>';
 
 echo "\$environment['description']: ".$environment['description']."<br>";
 echo "\$environment['status']: ".$environment['status']."<br>";
-echo "\$environment['location']['name']: ".$environment['location']['name']."<br>";
-echo "\$environment['location']['lat']: ".$environment['location']['lat']."<br>";
-echo "\$environment['location']['lon']: ".$environment['location']['lon']."<br>";
-echo "\$environment['location']['exposure']: ".$environment['location']['exposure']."<br>";
+echo "\$environment['location'][0]['name']: ".$environment['location'][0]['name']."<br>";
+echo "\$environment['location'][0]['lat']: ".$environment['location'][0]['lat']."<br>";
+echo "\$environment['location'][0]['lon']: ".$environment['location'][0]['lon']."<br>";
+echo "\$environment['location'][0]['exposure']: ".$environment['location'][0]['exposure']."<br>";
 echo "count(\$environment['datastreams']): ".count($environment['datastreams'])."<br>";
-echo "\$environment['datastreams']['2']['value']['current_value']: ".$environment['datastreams']['2']['value']['current_value']."<br>";
+echo "\$environment['datastreams']['2']['values'][0]['value']: ".$environment['datastreams']['2']['values'][0]['value']."<br>";
 
 
 echo "</li><hr>";
