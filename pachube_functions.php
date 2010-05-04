@@ -29,17 +29,22 @@
 // be added over time.
 // Requires PHP 5
 
+// Version 0.2 
+// Updated: May 4, 2010
+
 
 class Pachube
 {
 		
 	private $Api;
-	
-	
+	private $Pachube_headers;
+	private $Pachube;
 	
 	function __construct ($api) 
 	{
 		$this->Api = $api;
+		$this->Pachube = "www.pachube.com";
+		$this->Pachube_headers  = array("X-PachubeApiKey: $this->Api");
 	}
 	
 	
@@ -57,9 +62,29 @@ class Pachube
 			return 401;
 		} else 
 		{
-			if(!empty($data) && !empty($url))
+			if(!empty($url))
 			{
 				$request = $this->putRequestToPachube($url, $data);
+				return $request;
+				
+			}else
+			{
+				return 998;
+			}
+		}
+	}
+		
+	public function updatePachubeDatastream ( $feed='', $datastream='', $value='' )
+	{ 
+		if(empty($this->Api))
+		{
+			return 401;
+		} else 
+		{
+			if(is_numeric($feed) && is_numeric($datastream) && is_numeric($value))
+			{
+				$url = "http://$this->Pachube/api/feeds/$feed/datastreams/$datastream.csv";
+				$request = $this->putRequestToPachube($url, $value);
 				return $request;
 				
 			}else
@@ -84,7 +109,7 @@ class Pachube
 			
 				if (!empty($type)) {
 					if ((strcmp(strtolower($type), "xml") == 0) || (strcmp(strtolower($type), "json") == 0) || (strcmp(strtolower($type), "csv") == 0)){
-						$url = "http://www.pachube.com/api/$url.$type";
+						$url = "http://$this->Pachube/api/feeds/$url.$type";
 					} else {
 						$url = "";
 					}
@@ -156,9 +181,9 @@ class Pachube
 			return 401;
 		} else 
 		{
-			if(!empty($feed_id) )
+			if(is_numeric($feed_id) )
 			{
-				$url = "http://www.pachube.com/api/".$feed_id;
+				$url = "http://$this->Pachube/api/feeds/".$feed_id;
 				$request = $this->deleteRequestToPachube($url);
 				return $request;
 				
@@ -216,7 +241,7 @@ class Pachube
 
 	public function showGraph ( $feed_id='', $datastream_id, $width='300', $height='200', $colour='FF0066', $label=true, $grid=true, $title='', $legend='', $stroke='4' ){
 
-		if(!empty($feed_id)){
+		if(is_numeric($feed_id)){
 		
 			if(is_numeric($feed_id) && is_numeric($datastream_id)){
 							
@@ -225,7 +250,7 @@ class Pachube
 				$label_param = $label? "&b=$label" : "";
 				$title_param = (strcmp($title,"")==0)? "" : "&t=$title";
 							
-				echo "<img src=\"http://www.pachube.com/feeds/$feed_id/datastreams/$datastream_id/history.png?w=$width&h=$height&c=$colour$label_param$grid_param$title_param$legend_param&s=$stroke\" width=\"$width\" height=\"$height\" border=\"1\" alt=\"powered by Pachube.com\">";
+				echo "<img src=\"http://$this->Pachube/feeds/$feed_id/datastreams/$datastream_id/history.png?w=$width&h=$height&c=$colour$label_param$grid_param$title_param$legend_param&s=$stroke\" width=\"$width\" height=\"$height\" border=\"1\" alt=\"powered by Pachube.com\">";
 			
 			}		
 		}
@@ -242,13 +267,12 @@ class Pachube
 			{	
 			
 				$search = urlencode($search);
-				$url = "http://www.pachube.com/api/search.json?order=created_at&q=$search";
-				$pachube_headers  = array("X-PachubeApiKey: $this->Api");
+				$url = "http://$this->Pachube/api/feeds.json?order=created_at&q=$search";
 
 				$ch = curl_init();	
 				curl_setopt($ch, CURLOPT_URL, $url);
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-				curl_setopt($ch, CURLOPT_HTTPHEADER, $pachube_headers);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, $this->Pachube_headers);
 						
 				$data = curl_exec($ch);
 	
@@ -293,8 +317,6 @@ class Pachube
 		{
 			if(function_exists(curl_init))
 			{	
-				$pachube_headers  = array("X-PachubeApiKey: $this->Api");
-
     			$putData = tmpfile();
 				fwrite($putData, $data);
 				fseek($putData, 0);
@@ -303,7 +325,7 @@ class Pachube
 				$ch = curl_init();	
 				curl_setopt($ch, CURLOPT_URL, $url);
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-				curl_setopt($ch, CURLOPT_HTTPHEADER, $pachube_headers);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, $this->Pachube_headers);
 				curl_setopt($ch, CURLOPT_INFILE, $putData); 
 				curl_setopt($ch, CURLOPT_INFILESIZE, strlen($data)); 
 				curl_setopt($ch, CURLOPT_PUT, true);
@@ -333,12 +355,10 @@ class Pachube
 	{
 			if(function_exists(curl_init))
 			{	
-				$pachube_headers  = array("X-PachubeApiKey: $this->Api");
-
 				$ch = curl_init();	
 				curl_setopt($ch, CURLOPT_URL, $url);
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-				curl_setopt($ch, CURLOPT_HTTPHEADER, $pachube_headers);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, $this->Pachube_headers);
 						
 				$return = curl_exec($ch);
 	
@@ -361,15 +381,12 @@ class Pachube
 		{
 			if(function_exists(curl_init))
 			{	
-			
-				$pachube_headers  = array("X-PachubeApiKey: $this->Api");
-				
-				$url = "http://www.pachube.com/api.xml";				
+				$url = "http://$this->Pachube/api.xml";				
 				
 				$ch = curl_init();	
 				curl_setopt($ch, CURLOPT_URL, $url);
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-				curl_setopt($ch, CURLOPT_HTTPHEADER, $pachube_headers);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, $this->Pachube_headers);
 				curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
 				curl_setopt($ch, CURLOPT_POST, true);
 				curl_setopt($ch, CURLOPT_HEADER, true);
@@ -386,7 +403,7 @@ class Pachube
 				if ($status != 201) {
 					$ret = -$status;
 				} else {
-					$ret = $this->stringBetween($return,"Location: http://www.pachube.com/api/",".xml");			
+					$ret = trim($this->stringBetween($return,"Location: http://$this->Pachube/api/feeds/","\n"));			
 				}																
 			} 
 			else
@@ -407,12 +424,10 @@ class Pachube
 		{
 			if(function_exists(curl_init))
 			{	
-				$pachube_headers  = array("X-PachubeApiKey: $this->Api");
-
 				$ch = curl_init();	
 				curl_setopt($ch, CURLOPT_URL, $url);
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-				curl_setopt($ch, CURLOPT_HTTPHEADER, $pachube_headers);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, $this->Pachube_headers);
 				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
 						
 				curl_exec($ch);
@@ -487,7 +502,4 @@ END;
 	}
 
 
-}
-
-?>
-
+}?>
