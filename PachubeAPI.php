@@ -485,7 +485,6 @@ class PachubeAPI
 				curl_setopt($ch, CURLOPT_HTTPHEADER, $this->Pachube_headers);
 			}
 			$data = curl_exec($ch);
-			//$headers = curl_getinfo($ch);
 			curl_close($ch);
 			return $data;
 		}
@@ -547,7 +546,7 @@ class PachubeAPI
 	}
 
 	/**
-	 * Print debug status of error
+	 * Print debug status
 	 * @param int status code
 	 */
 	public function _debugStatus($status_code)
