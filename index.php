@@ -49,7 +49,7 @@ require_once( 'PachubeAPI.php' );
 # *****************************************************************
 
 
-$api_key = "WfbokzWWHhqIyQGlFm2nlCmiHW7ulqHzuTlxXru8Sjo";
+$api_key = "YOUR_KEY";
 
 echo "<hr>";
 echo "<li><b>Create a Pachube object with your API key: </b>";
