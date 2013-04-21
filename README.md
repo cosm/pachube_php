@@ -1,6 +1,6 @@
 # PachubeAPI (PHP)
 
-*This class implementing Pachube API version 1.0! More recent class can be found [here](https://github.com/MunGell/PachubeAPI)*
+*This class implementing Pachube API version 1.5!*
 
 This is a PHP library to interact with Pachube API. 
 
