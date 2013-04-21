@@ -1,8 +1,8 @@
-# PachubeAPI (PHP)
+# CosmAPI (PHP)
 
-*This class implementing Pachube API version 1.5!*
+*This class implementing Cosm API version 2.0!*
 
-This is a PHP library to interact with Pachube API. 
+This is a PHP library to interact with Cosm API. 
 
 [Source](http://codeblog.ru)
 
