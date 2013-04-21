@@ -22,7 +22,7 @@ class CosmAPI
 	{
 		$this->Api = $api;
 		$this->Cosm = "api.cosm.com/v2";
-		$this->Cosm_headers  = array("X-CosmApiKey: $this->Api");
+		$this->Cosm_headers  = array("X-ApiKey: $this->Api");
 	}
 	
 	/**
@@ -374,7 +374,7 @@ class CosmAPI
 	{
 		// Create a stream
 		$opts['http']['method'] = "GET";
-		$opts['http']['header'] = "X-CosmApiKey: ".$this->Api."\r\n";
+		$opts['http']['header'] = "X-ApiKey: ".$this->Api."\r\n";
 		$context = stream_context_create($opts);
 		// Open the file using the HTTP headers set above
 		return file_get_contents($url, false, $context);
@@ -411,7 +411,7 @@ class CosmAPI
 	{	
 		// Create a stream
 		$opts['http']['method'] = "PUT";
-		$opts['http']['header'] = "X-CosmApiKey: ".$this->Api."\r\n";
+		$opts['http']['header'] = "X-ApiKey: ".$this->Api."\r\n";
 		$opts['http']['header'] .= "Content-Length: " . strlen($data) . "\r\n";
 		$opts['http']['content'] = $data;
 		$context = stream_context_create($opts);
